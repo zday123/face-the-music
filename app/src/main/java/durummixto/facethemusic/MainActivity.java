@@ -1,6 +1,7 @@
 package durummixto.facethemusic;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -29,13 +30,18 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String CLIENT_ID = "dc8addce37f04b198a0ac367af5964ed";
+    private static final String CLIENT_ID = "3236da481a644c8da2ad80febdaafa1c:d0f70090179f46179ef47bc37f6052f7";
     private static final String REDIRECT_URI = "com.durummixto.facethemusic://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
 
     private static final int REQUEST_CODE = 1337;
-
-    
+//
+//    AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+//
+//    builder.setScopes(new String[]{"streaming"});
+//    AuthenticationRequest request = builder.build();
+//
+//    AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
 
 
@@ -58,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         ConnectionParams connectionParams =
             new ConnectionParams.Builder(CLIENT_ID)
+                .setRedirectUri(REDIRECT_URI)
                 .showAuthView(true)
                 .build();
-        SpotifyAppRemote.connect(this, connectionParams,
-                new Connector.ConnectionListener() {
+        SpotifyAppRemote.connect(this, connectionParams, new Connector.ConnectionListener() {
 
             @Override
             public void onConnected(SpotifyAppRemote spotifyAppRemote) {
@@ -76,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Throwable throwable) {
                 Log.e("MainActivity", throwable.getMessage(), throwable);
             }
-                });
+        });
     }
     private void connected() {
         mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9" +
@@ -85,5 +91,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == REQUEST_CODE) {
+            AuthenticationResponse response =
+                    AuthenticationClient.getResponse(resultCode, intent);
+
+            switch (response.getType()) {
+                case TOKEN:
+                    break;
+                case ERROR:
+                    break;
+                default:
+            }
+        }
     }
 }
