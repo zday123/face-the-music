@@ -1,5 +1,8 @@
 package durummixto.facethemusic;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -17,8 +20,13 @@ public class QuickstartSample {
     public static void main(String[] args) throws Exception{
         getResponses(ImageProcessor.getByteString(args[0]));
     }
-    public static void getResponses(ByteString imgBytes) throws Exception {
+    public static void getResponses(ByteString imgBytes, Context context) throws Exception {
         // Instantiates a client
+        Drawable d = context.getResources().getDrawable(R.drawable.sadpic);
+            
+
+        getResponses(ImageProcessor.getByteString());
+
         try (ImageAnnotatorClient vision = ImageAnnotatorClient.create()) {
 
             // Builds the image annotation request
