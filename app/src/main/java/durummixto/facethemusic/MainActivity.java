@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             camIdList = c.getCameraIdList();
         } catch (CameraAccessException e) {
-            Log.println(6, "camera access", "OH SHIT");
+            Log.println(Log.DEBUG, "camera access", "OH SHIT");
             System.exit(1);
         }
         //c.openCamera(camIdList[0],);
@@ -56,11 +56,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        ConnectionParams connectionParams =(new ConnectionParams.Builder(CLIENT_ID))
-                .setRedirectUri(REDIRECT_URI).showAuthView(true).build();
+        ConnectionParams connectionParams =
+            new ConnectionParams.Builder(CLIENT_ID)
+                .showAuthView(true)
+                .build();
+        SpotifyAppRemote.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
+
+            @Override
+            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                mSpotifyAppRemote = spotifyAppRemote;
+                Log.d("MainActivity", "Connected! YaY!");
+
+                //Now you can start interacting with App Remote
+                connected();
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.e("MainActivity", throwable.getMessage(), throwable);
+            }
+                });
     }
     private void connected() {
-
+        mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9" +
+                "dQZF1DX2sUQwD7tbmL");
     }
     @Override
     protected void onStop() {
