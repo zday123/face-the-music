@@ -3,6 +3,7 @@ package durummixto.facethemusic;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -29,6 +30,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,16 +48,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-    private static final int REQUEST_CODE = 1337;
-    private static final String REDIRECT_URI = "com.durummixto.facethemusic://callback";
 
-    AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-        AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-
-    builder.setScopes(new String[]{"streaming"});
-    AuthenticationRequest request = builder.build();
-
-    AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -103,6 +99,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
+
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {

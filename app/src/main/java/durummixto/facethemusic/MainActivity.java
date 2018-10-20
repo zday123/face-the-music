@@ -1,10 +1,21 @@
 package durummixto.facethemusic;
 
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.spotify.android.appremote.*;
-import com.spotify.protocol.*;
+
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
+
+
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
@@ -15,11 +26,18 @@ import android.util.Log;
 
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "dc8addce37f04b198a0ac367af5964ed";
     private static final String REDIRECT_URI = "com.durummixto.facethemusic://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
+
+    private static final int REQUEST_CODE = 1337;
+
+    
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
