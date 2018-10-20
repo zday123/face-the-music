@@ -16,6 +16,7 @@ import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
 
+
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.support.v7.app.AppCompatActivity;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
             camIdList = c.getCameraIdList();
         } catch (CameraAccessException e) {
             Log.println(6, "camera access", "OH SHIT");
+            System.exit(1);
         }
         //c.openCamera(camIdList[0],);
     }
