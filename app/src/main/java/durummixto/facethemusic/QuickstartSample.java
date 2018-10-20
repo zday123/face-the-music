@@ -9,24 +9,17 @@ import com.google.cloud.vision.v1.Feature.Type;
 import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.protobuf.ByteString;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuickstartSample {
-    public static void main(String... args) throws Exception {
+
+    public static void main(String[] args) throws Exception{
+        getResponses(ImageProcessor.getByteString(args[0]));
+    }
+    public static void getResponses(ByteString imgBytes) throws Exception {
         // Instantiates a client
         try (ImageAnnotatorClient vision = ImageAnnotatorClient.create()) {
-
-            // The path to the image file to annotate
-            String fileName = "./resources/wakeupcat.jpg";
-
-            // Reads the image file into memory
-            Path path = Paths.get(fileName);
-            byte[] data = Files.readAllBytes(path);
-            ByteString imgBytes = ByteString.copyFrom(data);
 
             // Builds the image annotation request
             List<AnnotateImageRequest> requests = new ArrayList<>();
