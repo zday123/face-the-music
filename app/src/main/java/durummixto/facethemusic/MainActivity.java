@@ -1,14 +1,11 @@
 package durummixto.facethemusic;
 
-<<<<<<< HEAD
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.spotify.android.appremote.*;
 import com.spotify.protocol.*;
 
-
-=======
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +14,6 @@ import android.hardware.camera2.CameraManager;
 import android.util.Log;
 
 import java.util.List;
->>>>>>> fe5221707d35f24efa857c0447ba765056cdd6b8
 
 public class MainActivity extends AppCompatActivity {
 
