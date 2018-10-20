@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             camIdList = c.getCameraIdList();
         } catch (CameraAccessException e) {
             Log.println(6, "camera access", "OH SHIT");
+            System.exit(1);
         }
         //c.openCamera(camIdList[0],);
     }
