@@ -66,7 +66,7 @@ public class VisionInterfacer {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
                 .setJsonFactory(JSON_FACTORY)
-                .setServiceAccountId("fb88340f10801a8b298a9418e4cbfbd4fac2a44e")
+                .setServiceAccountId("")
                 .setServiceAccountScopes(scopes)
                 .setServiceAccountPrivateKeyFromP12File(StreamUtil.stream2file(context.getResources().openRawResource(R.raw.auth)))
                 .build();
