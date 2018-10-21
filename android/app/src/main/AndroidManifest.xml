@@ -3,6 +3,8 @@
     package="durummixto.facethemusic">
     <uses-permission
         android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera2"/>
+    <uses-feature android:name="android.hardware.camera"/>
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -16,7 +18,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,9 +29,14 @@
         </activity>
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
+            android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true"
             android:label="@string/title_activity_login"></activity>
+        <activity android:name=".CameraActivity"
+            android:exported="true"></activity>
+        <activity android:name=".CameraView"
+            android:exported="true"/>
     </application>
 
 </manifest>
