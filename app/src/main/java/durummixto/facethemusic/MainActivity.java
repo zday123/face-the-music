@@ -30,8 +30,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String CLIENT_ID = "3236da481a644c8da2ad80febdaafa1c:d0f70090179f46179ef47bc37f6052f7";
-    private static final String REDIRECT_URI = "com.durummixto.facethemusic://callback";
+    private static final String CLIENT_ID = "3236da481a644c8da2ad80febdaafa1c";
+    private static final String REDIRECT_URI = "testschema://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
 
     private static final int REQUEST_CODE = 1337;
@@ -85,12 +85,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void connected() {
-        mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9" +
-                "dQZF1DX2sUQwD7tbmL");
+//        mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9dQZF1DX7K31D69s4M1");
+        mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState()
+                .setEventCallback(new Subscription.EventCallback<PlayerState>() {
+                    @Override
+                    public void onEvent(PlayerState playerState) {
+                        final Track track = playerState.track;
+                        if (track != null) {
+                            Log.d("MainActivity", track.name + " by " + track.artist.name);
+                        }
+                    }
+                });
     }
     @Override
     protected void onStop() {
         super.onStop();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
