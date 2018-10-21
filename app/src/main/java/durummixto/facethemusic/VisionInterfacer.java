@@ -11,7 +11,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -19,7 +18,6 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
-import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.cloud.vision.v1.FaceAnnotation;
 import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.Feature.Type;
@@ -28,14 +26,11 @@ import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
 import com.google.protobuf.ByteString;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +44,7 @@ public class VisionInterfacer {
         Bitmap bitmap = ((BitmapDrawable)d).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+
         byte[] bitmapdata = stream.toByteArray();
         ByteString imgBytes = ByteString.copyFrom(bitmapdata);
         List<AnnotateImageRequest> requests = new ArrayList<>();
@@ -60,24 +56,32 @@ public class VisionInterfacer {
         requests.add(request);
         Log.d("yote", "" + bitmapdata.length);
 
-        InputStream is = context.getResources().openRawResource(R.raw.token);
+//        InputStream is = context.getResources().openRawResource(R.raw.token);
 
         HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
         JsonFactory JSON_FACTORY = new JacksonFactory();
+        List<String> scopes = Arrays.asList("https://www.googleapis.com/auth/androidpublisher");
 
 
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setTransport(HTTP_TRANSPORT)
+                .setJsonFactory(JSON_FACTORY)
+                .setServiceAccountId("fb88340f10801a8b298a9418e4cbfbd4fac2a44e")
+                .setServiceAccountScopes(scopes)
+                .setServiceAccountPrivateKeyFromP12File(StreamUtil.stream2file(context.getResources().openRawResource(R.raw.auth)))
+                .build();
 
-//        List<String> scopes = Arrays.asList("https://www.googleapis.com/auth/androidpublisher");
-//        GoogleCredential credential = new GoogleCredential.Builder()
-//                .setTransport(HTTP_TRANSPORT)
-//                .setJsonFactory(JSON_FACTORY)
-//                .setServiceAccountId("fb88340f10801a8b298a9418e4cbfbd4fac2a44e")
-//                .setServiceAccountScopes(scopes)
-//                .setServiceAccountPrivateKeyFromP12File(keyFile)
-//                .build();
-//        credential.refreshToken();
-//        String accessToken = credential.getAccessToken();
-
+        Log.d("aa","aa");
+        Date da = Date.from(Instant.now());
+            da.setYear(Date.from(Instant.now()).getYear() + 1);
+        GoogleCredentials sac = ServiceAccountCredentials.newBuilder()
+                .setPrivateKey(credential.getServiceAccountPrivateKey())
+                .setPrivateKeyId(credential.getServiceAccountPrivateKeyId())
+                .setClientEmail(credential.getServiceAccountId())
+                .setScopes(scopes)
+                .setAccessToken(new AccessToken(credential.getAccessToken(), da))
+                .build();
+        Log.d("ahhh", "as");
 //        String apiKey = ApiKeyStore.key;
 //        InputStream authStream = new ByteArrayInputStream(apiKey.getBytes(StandardCharsets.UTF_8));
 //        Log.d("yote", authStream.toString());
@@ -96,13 +100,14 @@ public class VisionInterfacer {
 //        } catch (Exception e) {
 //            Log.d("yeet", e.getMessage());
 //        }
-
-        GoogleCredential credential = new GoogleCredential().setAccessToken("ya29.Gls8BiBLwTz2U9No8b-AwpDewveJjERtXQVQhItlEWFo48_xlKrOzeMHKoQp0LzC71NDHkPRO7g1ppde8fsvsZK-a_TupawDBt9LPlQeg0U1fHPNXabjfnF3HwaY");
-        FixedCredentialsProvider credentialsProvider = FixedCredentialsProvider.create(credential);
+//
+//        GoogleCredential credential = new GoogleCredential().setAccessToken("ya29.Gls8BiBLwTz2U9No8b-AwpDewveJjERtXQVQhItlEWFo48_xlKrOzeMHKoQp0LzC71NDHkPRO7g1ppde8fsvsZK-a_TupawDBt9LPlQeg0U1fHPNXabjfnF3HwaY");
+        FixedCredentialsProvider credentialsProvider = FixedCredentialsProvider.create(sac);
         ImageAnnotatorSettings imageAnnotatorSettings =
-                    ImageAnnotatorSettings.newBuilder()
-                            .setCredentialsProvider(credentialsProvider)
+                    ImageAnnotatorSettings.newBuilder().setCredentialsProvider(credentialsProvider)
                             .build();
+//        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+//        Vision vision = new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential).build();
         try {
             try (ImageAnnotatorClient client =
                          ImageAnnotatorClient.create(imageAnnotatorSettings)){
