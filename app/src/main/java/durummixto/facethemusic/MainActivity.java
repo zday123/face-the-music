@@ -5,26 +5,15 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerState;
-import com.spotify.protocol.types.Track;
 
 
-
-import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.hardware.camera2.CameraManager;
 import android.util.Log;
 
-import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -48,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             camIdList = c.getCameraIdList();
         } catch (CameraAccessException e) {
-            Log.println(6, "camera access", "OH SHIT");
+            Log.d("camera access", "OH SHIT");
             System.exit(1);
         }
         //c.openCamera(camIdList[0],);
@@ -58,9 +47,14 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         ConnectionParams connectionParams =(new ConnectionParams.Builder(CLIENT_ID))
                 .setRedirectUri(REDIRECT_URI).showAuthView(true).build();
+        try {
+            Map<String, String> map = VisionInterfacer.getResponses(this);
+
+        } catch(Exception e) {
+            Log.e("Vision error", "yeet");
+        }
     }
     private void connected() {
-
     }
     @Override
     protected void onStop() {
