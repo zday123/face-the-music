@@ -1,77 +1,44 @@
-import requests
-import pathlib
-import os
-
-import sys
-import spotipy
-import spotipy.util as util
-
-import time
-import facethemusic
-import webcamdriver
-import timeit
-
-def main():
-    scopes = 'user-read-currently-playing playlist-modify-private playlist-read-private '
-
-    if len(sys.argv) > 1:
-        username = sys.argv[1]
-    else:
-        print("Please type your Spotify username in command line to allow access to your account!")
-        sys.exit()
-    token = util.prompt_for_user_token(username, scopes, client_id='[CLIENT_KEY]', client_secret='[CLIENT_SECRET]', redirect_uri='https://www.google.com/callback')
-    if token:
-        spotify = spotipy.Spotify(auth=token)
-        #Set-up playlists
-        ul = spotify.user_playlists(username, limit=50, offset=0)
-        for pl in [x for x in ['normal', 'joy', 'anger', 'sorrow'] if x + '-facethemusic' not in [l['name'] for l in ul['items'] if l['owner']['id'] == username]]:
-            spotify.user_playlist_create(username, pl + '-facethemusic', public=False, description='Songs that make me feel ' + pl)
-        songs = {}
-        cam = webcamdriver.Webcamdriver()
-        cam.begin_webcam_image()
-        tic = timeit.default_timer()
-        try:
-            count = 0
-            while True:
-                count += 1
-                cam.begin_webcam_image()
-                toc = timeit.default_timer()
-                if count >= 1000:
-                    count = 0
-                    r = spotify.currently_playing('US')
-                    try:
-                        track = r['item']['uri']
-                        name = r['item']['name']
-                        filename = cam.capture()
-                        emotion = facethemusic.fetch_emotion(filename)
-                        os.remove(pathlib.Path(os.path.abspath(filename)))
-                        if (track, name) in songs.keys():
-                            songs[(track, name)][emotion] += 1
-                        else:
-                            songs[(track, name)] = {'joy': 0, 'sorrow': 0, 'anger': 0, 'normal': 0}
-                        print("Track:", name, "Emotion detected:", emotion)
-                    except:
-                        break
-        except KeyboardInterrupt:
-            pass
-        cam.release_image()
-        print("\nAdding songs to Spotify playlists...\n")
-        playlists = {'normal': [], 'joy': [], 'sorrow': [], 'anger': []}
-        for key, options in songs.items():
-            argmax = max(options, key=lambda k: options[k])
-            print("Adding \"{} to \"{}-facethemusic\" playlist".format(key[1], argmax))
-            playlists[argmax] += [key[0]]
-        print("\n")
-        ul = spotify.user_playlists(username, limit=50, offset=0)
-        for pl in playlists:
-            if len(playlists[pl]) > 0:
-                for expl in range(len(ul['items'])):
-                    if ul['items'][expl]['name'] == pl + "-facethemusic":
-                        spotify.user_playlist_remove_all_occurrences_of_tracks(username, ul['items'][expl]['uri'],
-                                                                               playlists[pl], snapshot_id=None)
-                        spotify.user_playlist_add_tracks(username, ul['items'][expl]['uri'], playlists[pl], position=None)
-                print("\nAdded {} items to {}-facethemusic playlist".format(len(playlists[pl]), pl))
+from google.cloud import vision
+from google.cloud.vision import types
+from PIL import Image, ImageDraw
+client = vision.ImageAnnotatorClient()
 
 
-if __name__ == "__main__":
-    main()
+def detect_face(face_file, max_results=1):
+    client = vision.ImageAnnotatorClient()
+
+    content = face_file.read()
+    image = types.Image(content=content)
+    return client.face_detection(image=image).face_annotations
+
+
+def highlight_faces(image, faces, output_filename):
+    im = Image.open(image)
+    draw = ImageDraw.Draw(im)
+    for face in faces:
+        box = [(vertex.x, vertex.y) for vertex in face.bounding_poly.vertices]
+        draw.line(box + [box[0]], width=5, fill='#00ff00')
+    im.save(output_filename)
+
+
+def get_emotion(faces):
+    face_data = []
+    for face in faces:
+        x_diff = max([vertex.x for vertex in face.bounding_poly.vertices]) - min([vertex.x for vertex in face.bounding_poly.vertices])
+        y_diff = max([vertex.y for vertex in face.bounding_poly.vertices]) - min([vertex.y for vertex in face.bounding_poly.vertices])
+        emotions = [face.joy_likelihood, face.sorrow_likelihood, face.anger_likelihood]
+        if emotions[0] == emotions[1] == emotions[2]:
+            face_data.append((x_diff + y_diff, 'normal'))
+        elif max(emotions) == emotions[0]:
+            face_data.append((x_diff + y_diff, 'joy'))
+        elif max(emotions) == emotions[1]:
+            face_data.append((x_diff + y_diff, 'sorrow'))
+        else:
+            face_data.append((x_diff + y_diff, 'anger'))
+    return max(face_data, key=lambda f: f[0])[1]
+
+
+def fetch_emotion(input_filename):
+    with open(input_filename, 'rb') as image:
+        faces = detect_face(image, 1)
+        return get_emotion(faces)
