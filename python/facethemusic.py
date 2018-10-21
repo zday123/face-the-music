@@ -2,6 +2,9 @@ from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
 client = vision.ImageAnnotatorClient()
+import requests
+import pathlib
+import os
 
 def detect_face(face_file, max_results=1):
     client = vision.ImageAnnotatorClient()
@@ -37,6 +40,10 @@ def get_emotion(faces):
             face_data.append((x_diff + y_diff, 'anger'))
     return max(face_data, key=lambda f: f[0])[1]
 
+def get_song():
+    pathlib.Path(os.path.abspath("data/")).as_uri()
+    payload = {'client_id': '037fc929d3694a2a8b32fe9c32a4af28', 'response_type': 'token', 'redirect_uri': }
+    r = requests.get('https://api.github.com/events')
 
 def match_emotion_song():
     #TODO: get image
@@ -45,7 +52,8 @@ def match_emotion_song():
         print('Found {} face{}'.format(
             len(faces), '' if len(faces) == 1 else 's'))
         get_emotion(faces)
-    
+        get_song()
+
 
 
 if __name__ == "__main__": main()
